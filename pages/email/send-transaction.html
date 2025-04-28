@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Confirmação de Pagamento | Woovi-Test</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap");
+
+      body {
+        font-family: "Inter", sans-serif;
+        background-color: #f3f4f6;
+      }
+
+      .transaction-card {
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+          0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        transition: all 0.3s ease;
+      }
+
+      .transaction-card:hover {
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1),
+          0 4px 6px -2px rgba(0, 0, 0, 0.05);
+      }
+
+      .status-sent {
+        background-color: #fef2f2;
+        color: #dc2626;
+      }
+
+      .status-pending {
+        background-color: #fffbeb;
+        color: #d97706;
+      }
+
+      .gradient-header {
+        background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+      }
+
+      .receipt-barcode {
+        font-family: "Libre Barcode 128", cursive;
+        font-size: 36px;
+        letter-spacing: 2px;
+        text-align: center;
+      }
+    </style>
+  </head>
+  <body class="bg-gray-100">
+    <div class="max-w-2xl mx-auto my-8">
+      <!-- Header -->
+      <div class="gradient-header rounded-t-lg p-6 text-center">
+        <div class="flex justify-center mb-4">
+          <div class="bg-white p-3 rounded-full">
+            <i class="fas fa-paper-plane text-2xl text-indigo-600"></i>
+          </div>
+        </div>
+        <h1 class="text-2xl font-bold text-white">Pagamento Realizado</h1>
+        <p class="text-indigo-100 mt-2">
+          Seu pagamento foi processado com sucesso
+        </p>
+      </div>
+
+      <!-- Content -->
+      <div class="bg-white p-6 rounded-b-lg">
+        <p class="text-gray-700 mb-6">
+          Olá <span class="font-semibold">[Nome do Usuário]</span>,
+        </p>
+
+        <p class="text-gray-700 mb-6">
+          Confirmamos que seu pagamento foi realizado. Abaixo estão os detalhes
+          da transação:
+        </p>
+
+        <!-- Transaction Card -->
+        <div class="transaction-card border rounded-lg p-6 mb-6">
+          <div class="flex justify-between items-center mb-4">
+            <span
+              id="transactionStatus"
+              class="status-sent px-3 py-1 rounded-full text-sm font-medium"
+            >
+              <i class="fas fa-arrow-up mr-1"></i> Pagamento Enviado
+            </span>
+            <span class="text-gray-500 text-sm">Hoje, 14:30</span>
+          </div>
+
+          <div class="flex items-center justify-between mb-6">
+            <div>
+              <p class="text-gray-500 text-sm">Valor do Pagamento</p>
+              <p
+                id="transactionAmount"
+                class="text-2xl font-bold text-gray-800"
+              >
+                R$ 850,00
+              </p>
+            </div>
+            <div class="bg-red-50 p-3 rounded-full">
+              <i class="fas fa-money-bill-wave text-xl text-red-600"></i>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-4 mb-6">
+            <div>
+              <p class="text-gray-500 text-sm">De</p>
+              <p class="font-medium text-gray-800">Sua Conta</p>
+            </div>
+            <div>
+              <p class="text-gray-500 text-sm">Para</p>
+              <p class="font-medium text-gray-800">Loja Eletrônica XYZ</p>
+            </div>
+          </div>
+
+          <div class="mb-6">
+            <p class="text-gray-500 text-sm">Método de Pagamento</p>
+            <div class="flex items-center mt-1">
+              <i class="fab fa-cc-visa text-2xl text-blue-800 mr-2"></i>
+              <p class="font-medium text-gray-800">Cartão Visa final 4567</p>
+            </div>
+          </div>
+
+          <div class="mb-6">
+            <p class="text-gray-500 text-sm">Descrição</p>
+            <p class="font-medium text-gray-800">
+              Compra de eletrônicos - Nota fiscal #789456
+            </p>
+          </div>
+
+          <div class="mb-2">
+            <p class="text-gray-500 text-sm">ID da Transação</p>
+            <p class="font-mono text-gray-800">TXN-4567-8910-1234</p>
+          </div>
+        </div>
+
+        <!-- Receipt Section -->
+        <div class="border-2 border-dashed border-gray-200 rounded-lg p-6 mb-6">
+          <h3 class="text-lg font-semibold text-center mb-4">
+            COMPROVANTE DE PAGAMENTO
+          </h3>
+
+          <div class="flex justify-between mb-2">
+            <span class="text-gray-500">Data:</span>
+            <span class="font-medium">10/11/2023</span>
+          </div>
+
+          <div class="flex justify-between mb-2">
+            <span class="text-gray-500">Hora:</span>
+            <span class="font-medium">14:30:45</span>
+          </div>
+
+          <div class="flex justify-between mb-2">
+            <span class="text-gray-500">Valor:</span>
+            <span class="font-medium">R$ 850,00</span>
+          </div>
+
+          <div class="flex justify-between mb-4">
+            <span class="text-gray-500">Status:</span>
+            <span class="font-medium text-green-600">Concluído</span>
+          </div>
+
+          <div class="receipt-barcode my-4">*TXN-4567-8910-1234*</div>
+
+          <p class="text-xs text-gray-500 text-center">
+            Este comprovante serve como recibo oficial do pagamento realizado.
+          </p>
+        </div>
+
+        <!-- Status Info -->
+        <div class="bg-yellow-50 rounded-lg p-4 mb-6">
+          <div class="flex">
+            <div class="flex-shrink-0">
+              <i class="fas fa-clock text-yellow-500 mt-1 mr-3"></i>
+            </div>
+            <div>
+              <p class="text-sm text-yellow-700">
+                O valor pode levar até 48 horas para ser creditado ao
+                destinatário, dependendo do método de pagamento utilizado.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="grid grid-cols-2 gap-4 mb-6">
+          <a
+            href="#"
+            class="inline-block bg-gray-100 hover:bg-gray-200 text-gray-800 font-medium py-3 px-4 rounded-lg transition duration-300 text-center"
+          >
+            <i class="fas fa-download mr-2"></i> Baixar Comprovante
+          </a>
+          <a
+            href="#"
+            class="inline-block bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-3 px-4 rounded-lg transition duration-300 text-center"
+          >
+            <i class="fas fa-file-invoice mr-2"></i> Ver Fatura
+          </a>
+        </div>
+
+        <p class="text-gray-700 mb-4">
+          Caso você não tenha realizado esta transação, entre em contato
+          imediatamente com nosso suporte.
+        </p>
+
+        <p class="text-gray-700">
+          Atenciosamente,<br />
+          <span class="font-semibold">Equipe Woovi-Test</span>
+        </p>
+      </div>
+
+      <!-- Footer -->
+      <div
+        class="bg-white rounded-lg mt-4 p-6 text-center text-sm text-gray-500"
+      >
+        <div class="flex justify-center space-x-4 mb-4">
+          <a href="#" class="text-indigo-600 hover:text-indigo-800"
+            >Central de Ajuda</a
+          >
+          <span>•</span>
+          <a href="#" class="text-indigo-600 hover:text-indigo-800"
+            >Termos de Uso</a
+          >
+          <span>•</span>
+          <a href="#" class="text-indigo-600 hover:text-indigo-800"
+            >Privacidade</a
+          >
+        </div>
+        <p>© 2023 Woovi-Test. Todos os direitos reservados.</p>
+        <p class="mt-2">
+          Este e-mail foi enviado para
+          <span class="text-indigo-600">[Email do Usuário]</span>.
+        </p>
+        <p class="mt-2">
+          <a href="#" class="text-indigo-600 hover:underline"
+            >Cancelar inscrição</a
+          >
+          para deixar de receber e-mails como este.
+        </p>
+      </div>
+    </div>
+
+    <script>
+      // This script can be used to dynamically change the transaction details
+      document.addEventListener("DOMContentLoaded", function () {
+        // Example functions to modify transaction details
+        // setTransactionAsPending();
+        // setTransactionAsCompleted();
+      });
+
+      function setTransactionAsPending() {
+        const statusElement = document.getElementById("transactionStatus");
+        statusElement.className =
+          "status-pending px-3 py-1 rounded-full text-sm font-medium";
+        statusElement.innerHTML =
+          '<i class="fas fa-clock mr-1"></i> Pagamento Pendente';
+
+        // Update other elements as needed
+      }
+
+      function setTransactionAsCompleted() {
+        const statusElement = document.getElementById("transactionStatus");
+        statusElement.className =
+          "status-sent px-3 py-1 rounded-full text-sm font-medium";
+        statusElement.innerHTML =
+          '<i class="fas fa-arrow-up mr-1"></i> Pagamento Enviado';
+
+        // Update other elements as needed
+      }
+    </script>
+  </body>
+</html>

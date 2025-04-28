@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PIX Payment | Woovi-Test</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap");
+
+      body {
+        font-family: "Inter", sans-serif;
+        background-color: #f3f4f6;
+      }
+
+      .transaction-card {
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+          0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        transition: all 0.3s ease;
+      }
+
+      .transaction-card:hover {
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1),
+          0 4px 6px -2px rgba(0, 0, 0, 0.05);
+      }
+
+      .status-sent {
+        background-color: #fef2f2;
+        color: #dc2626;
+      }
+
+      .status-pending {
+        background-color: #fffbeb;
+        color: #d97706;
+      }
+
+      .status-success {
+        background-color: #f0fdf4;
+        color: #16a34a;
+      }
+
+      .gradient-header {
+        background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+      }
+
+      .receipt-barcode {
+        font-family: "Libre Barcode 128", cursive;
+        font-size: 36px;
+        letter-spacing: 2px;
+        text-align: center;
+      }
+
+      /* PIX Dialog Styles */
+      .pix-dialog {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 1000;
+        justify-content: center;
+        align-items: center;
+      }
+
+      .pix-dialog-content {
+        background-color: white;
+        border-radius: 0.75rem;
+        width: 100%;
+        max-width: 450px;
+        animation: fadeIn 0.3s ease;
+        overflow: hidden;
+      }
+
+      .pix-qrcode {
+        width: 200px;
+        height: 200px;
+        margin: 0 auto;
+        background-color: #f3f4f6;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        border-radius: 0.5rem;
+        position: relative;
+      }
+
+      .pix-qrcode::before {
+        content: "";
+        position: absolute;
+        width: 40px;
+        height: 40px;
+        background-color: #4f46e5;
+        border-radius: 50%;
+      }
+
+      .pix-timer {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        border: 4px solid #4f46e5;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-weight: bold;
+        margin: 0 auto;
+      }
+
+      .pix-copy-btn {
+        transition: all 0.2s ease;
+      }
+
+      .pix-copy-btn:hover {
+        transform: translateY(-2px);
+      }
+
+      .pix-copy-btn:active {
+        transform: translateY(0);
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .pix-payment-method {
+        transition: all 0.2s ease;
+      }
+
+      .pix-payment-method:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+      }
+
+      .pix-payment-method.active {
+        border-color: #4f46e5;
+        background-color: #f5f3ff;
+      }
+    </style>
+  </head>
+  <body class="bg-gray-100">
+    <div class="max-w-2xl mx-auto my-8">
+      <!-- Header -->
+      <div class="gradient-header rounded-t-lg p-6 text-center">
+        <div class="flex justify-center mb-4">
+          <div class="bg-white p-3 rounded-full">
+            <i class="fas fa-paper-plane text-2xl text-indigo-600"></i>
+          </div>
+        </div>
+        <h1 class="text-2xl font-bold text-white">Pagamento via PIX</h1>
+        <p class="text-indigo-100 mt-2">Rápido, seguro e sem taxas</p>
+      </div>
+
+      <!-- Content -->
+      <div class="bg-white p-6 rounded-b-lg">
+        <div class="mb-6">
+          <label
+            class="block text-gray-700 text-sm font-medium mb-2"
+            for="amount"
+            >Valor do Pagamento</label
+          >
+          <div class="relative">
+            <span
+              class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500"
+              >R$</span
+            >
+            <input
+              type="text"
+              id="amount"
+              class="w-full pl-8 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+              placeholder="0,00"
+            />
+          </div>
+        </div>
+
+        <div class="mb-6">
+          <label
+            class="block text-gray-700 text-sm font-medium mb-2"
+            for="recipient"
+            >Destinatário</label
+          >
+          <input
+            type="text"
+            id="recipient"
+            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+            placeholder="CPF/CNPJ, e-mail ou chave PIX"
+          />
+        </div>
+
+        <div class="mb-6">
+          <label class="block text-gray-700 text-sm font-medium mb-2"
+            >Descrição (opcional)</label
+          >
+          <input
+            type="text"
+            id="description"
+            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+            placeholder="Ex: Pagamento de serviço"
+          />
+        </div>
+
+        <div class="mb-8">
+          <h3 class="text-sm font-medium text-gray-700 mb-3">
+            Método de Pagamento
+          </h3>
+          <div class="grid grid-cols-2 gap-3">
+            <div
+              class="pix-payment-method border-2 border-gray-200 rounded-lg p-4 text-center cursor-pointer active"
+              onclick="selectPaymentMethod('qrcode')"
+            >
+              <i class="fas fa-qrcode text-3xl text-indigo-600 mb-2"></i>
+              <p class="text-sm font-medium">Ler QR Code</p>
+            </div>
+            <div
+              class="pix-payment-method border-2 border-gray-200 rounded-lg p-4 text-center cursor-pointer"
+              onclick="selectPaymentMethod('copy')"
+            >
+              <i class="fas fa-copy text-3xl text-gray-400 mb-2"></i>
+              <p class="text-sm font-medium">Copiar Código</p>
+            </div>
+          </div>
+        </div>
+
+        <button
+          id="openPixDialog"
+          class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-3 px-4 rounded-lg transition duration-300 flex items-center justify-center"
+        >
+          <i class="fas fa-pix mr-2"></i> Gerar Código PIX
+        </button>
+
+        <div class="mt-6 text-center text-sm text-gray-500">
+          <p>Pagamentos via PIX são processados instantaneamente</p>
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <div
+        class="bg-white rounded-lg mt-4 p-6 text-center text-sm text-gray-500"
+      >
+        <div class="flex justify-center space-x-4 mb-4">
+          <a href="#" class="text-indigo-600 hover:text-indigo-800"
+            >Central de Ajuda</a
+          >
+          <span>•</span>
+          <a href="#" class="text-indigo-600 hover:text-indigo-800"
+            >Termos de Uso</a
+          >
+          <span>•</span>
+          <a href="#" class="text-indigo-600 hover:text-indigo-800"
+            >Privacidade</a
+          >
+        </div>
+        <p>© 2023 Woovi-Test. Todos os direitos reservados.</p>
+      </div>
+    </div>
+
+    <!-- PIX Dialog -->
+    <div id="pixDialog" class="pix-dialog">
+      <div class="pix-dialog-content">
+        <!-- Dialog Header -->
+        <div class="gradient-header p-4 text-center">
+          <h2 class="text-xl font-bold text-white">Pagamento via PIX</h2>
+        </div>
+
+        <!-- Dialog Content -->
+        <div class="p-6">
+          <div class="text-center mb-6">
+            <p class="text-gray-600 mb-4">
+              Escaneie o QR Code abaixo usando seu app bancário
+            </p>
+
+            <div class="pix-qrcode mb-4">
+              <i class="fas fa-qrcode text-5xl text-gray-300"></i>
+            </div>
+
+            <div class="pix-timer mb-4" id="pixTimer">05:00</div>
+
+            <p class="text-sm text-gray-500 mb-4">Ou copie o código abaixo</p>
+
+            <div class="bg-gray-100 p-3 rounded-lg mb-4">
+              <p class="text-sm font-mono text-gray-800 break-all" id="pixCode">
+                00020126580014BR.GOV.BCB.PIX0136123e4567-e12b-12d1-a456-4266554400005204000053039865406850.005802BR5913FULANO
+                SILVA6008BRASILIA62070503***6304E2A0
+              </p>
+            </div>
+
+            <button
+              id="copyPixCode"
+              class="pix-copy-btn bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-4 rounded-lg transition duration-300 inline-flex items-center"
+            >
+              <i class="fas fa-copy mr-2"></i> Copiar Código
+            </button>
+          </div>
+
+          <div class="bg-blue-50 rounded-lg p-4 mb-6">
+            <div class="flex">
+              <div class="flex-shrink-0">
+                <i class="fas fa-info-circle text-blue-500 mt-1 mr-3"></i>
+              </div>
+              <div>
+                <h4 class="text-sm font-medium text-blue-800 mb-1">
+                  Como pagar com PIX
+                </h4>
+                <p class="text-xs text-blue-700">
+                  1. Abra seu app bancário<br />
+                  2. Acesse a opção PIX<br />
+                  3. Escaneie o QR Code ou cole o código<br />
+                  4. Confirme o pagamento
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div class="flex justify-between items-center">
+            <button
+              id="cancelPixPayment"
+              class="text-gray-600 hover:text-gray-800 font-medium"
+            >
+              <i class="fas fa-times mr-1"></i> Cancelar
+            </button>
+            <button
+              id="confirmPixPayment"
+              class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-4 rounded-lg transition duration-300"
+            >
+              Já efetuei o pagamento <i class="fas fa-check ml-1"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Payment Confirmation (hidden by default) -->
+    <div id="paymentConfirmation" class="max-w-2xl mx-auto my-8 hidden">
+      <!-- Header -->
+      <div class="gradient-header rounded-t-lg p-6 text-center">
+        <div class="flex justify-center mb-4">
+          <div class="bg-white p-3 rounded-full">
+            <i class="fas fa-check-circle text-2xl text-green-500"></i>
+          </div>
+        </div>
+        <h1 class="text-2xl font-bold text-white">Pagamento Confirmado</h1>
+        <p class="text-indigo-100 mt-2">
+          Seu pagamento PIX foi realizado com sucesso
+        </p>
+      </div>
+
+      <!-- Content -->
+      <div class="bg-white p-6 rounded-b-lg">
+        <p class="text-gray-700 mb-6">
+          Olá <span class="font-semibold">Usuário</span>,
+        </p>
+
+        <p class="text-gray-700 mb-6">
+          Confirmamos que seu pagamento via PIX foi realizado com sucesso.
+          Abaixo estão os detalhes da transação:
+        </p>
+
+        <!-- Transaction Card -->
+        <div class="transaction-card border rounded-lg p-6 mb-6">
+          <div class="flex justify-between items-center mb-4">
+            <span
+              id="transactionStatus"
+              class="status-success px-3 py-1 rounded-full text-sm font-medium"
+            >
+              <i class="fas fa-check-circle mr-1"></i> Pagamento Concluído
+            </span>
+            <span class="text-gray-500 text-sm">Agora mesmo</span>
+          </div>
+
+          <div class="flex items-center justify-between mb-6">
+            <div>
+              <p class="text-gray-500 text-sm">Valor do Pagamento</p>
+              <p
+                id="transactionAmount"
+                class="text-2xl font-bold text-gray-800"
+              >
+                R$ 850,00
+              </p>
+            </div>
+            <div class="bg-green-50 p-3 rounded-full">
+              <i class="fas fa-pix text-xl text-green-600"></i>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-4 mb-6">
+            <div>
+              <p class="text-gray-500 text-sm">De</p>
+              <p class="font-medium text-gray-800">Sua Conta</p>
+            </div>
+            <div>
+              <p class="text-gray-500 text-sm">Para</p>
+              <p class="font-medium text-gray-800">Loja Eletrônica XYZ</p>
+            </div>
+          </div>
+
+          <div class="mb-6">
+            <p class="text-gray-500 text-sm">Método de Pagamento</p>
+            <div class="flex items-center mt-1">
+              <i class="fas fa-pix text-2xl text-green-600 mr-2"></i>
+              <p class="font-medium text-gray-800">Transferência PIX</p>
+            </div>
+          </div>
+
+          <div class="mb-6">
+            <p class="text-gray-500 text-sm">Descrição</p>
+            <p class="font-medium text-gray-800">
+              Compra de eletrônicos - Nota fiscal #789456
+            </p>
+          </div>
+
+          <div class="mb-2">
+            <p class="text-gray-500 text-sm">ID da Transação</p>
+            <p class="font-mono text-gray-800">PIX-4567-8910-1234</p>
+          </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="grid grid-cols-2 gap-4 mb-6">
+          <a
+            href="#"
+            class="inline-block bg-gray-100 hover:bg-gray-200 text-gray-800 font-medium py-3 px-4 rounded-lg transition duration-300 text-center"
+          >
+            <i class="fas fa-download mr-2"></i> Baixar Comprovante
+          </a>
+          <a
+            href="#"
+            class="inline-block bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-3 px-4 rounded-lg transition duration-300 text-center"
+          >
+            <i class="fas fa-home mr-2"></i> Voltar ao Início
+          </a>
+        </div>
+
+        <p class="text-gray-700">
+          Atenciosamente,<br />
+          <span class="font-semibold">Equipe Woovi-Test</span>
+        </p>
+      </div>
+    </div>
+
+    <script>
+      // Payment method selection
+      function selectPaymentMethod(method) {
+        const methods = document.querySelectorAll(".pix-payment-method");
+        methods.forEach((m) =>
+          m.classList.remove("active", "border-indigo-500")
+        );
+
+        const selected = event.currentTarget;
+        selected.classList.add("active", "border-indigo-500");
+
+        // Change icon color
+        const icon = selected.querySelector("i");
+        if (method === "qrcode") {
+          icon.classList.remove("text-gray-400");
+          icon.classList.add("text-indigo-600");
+        } else {
+          icon.classList.remove("text-indigo-600");
+          icon.classList.add("text-gray-400");
+        }
+      }
+
+      // PIX Dialog functionality
+      document.addEventListener("DOMContentLoaded", function () {
+        const pixDialog = document.getElementById("pixDialog");
+        const openPixDialog = document.getElementById("openPixDialog");
+        const cancelPixPayment = document.getElementById("cancelPixPayment");
+        const confirmPixPayment = document.getElementById("confirmPixPayment");
+        const copyPixCode = document.getElementById("copyPixCode");
+        const paymentConfirmation = document.getElementById(
+          "paymentConfirmation"
+        );
+
+        // Open dialog
+        openPixDialog.addEventListener("click", function () {
+          pixDialog.style.display = "flex";
+          startTimer();
+        });
+
+        // Close dialog
+        cancelPixPayment.addEventListener("click", function () {
+          pixDialog.style.display = "none";
+          resetTimer();
+        });
+
+        // Confirm payment
+        confirmPixPayment.addEventListener("click", function () {
+          pixDialog.style.display = "none";
+          resetTimer();
+
+          // Hide payment form and show confirmation
+          document.querySelector(".max-w-2xl").classList.add("hidden");
+          paymentConfirmation.classList.remove("hidden");
+        });
+
+        // Copy PIX code
+        copyPixCode.addEventListener("click", function () {
+          const pixCode = document.getElementById("pixCode").textContent;
+          navigator.clipboard.writeText(pixCode);
+
+          // Change button text temporarily
+          const originalText = copyPixCode.innerHTML;
+          copyPixCode.innerHTML =
+            '<i class="fas fa-check mr-2"></i> Código Copiado';
+
+          setTimeout(() => {
+            copyPixCode.innerHTML = originalText;
+          }, 2000);
+        });
+
+        // Timer functionality
+        let timerInterval;
+        function startTimer() {
+          let timeLeft = 5 * 60; // 5 minutes in seconds
+          const timerElement = document.getElementById("pixTimer");
+
+          timerInterval = setInterval(() => {
+            timeLeft--;
+
+            const minutes = Math.floor(timeLeft / 60);
+            const seconds = timeLeft % 60;
+
+            timerElement.textContent = `${minutes
+              .toString()
+              .padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
+
+            if (timeLeft <= 0) {
+              clearInterval(timerInterval);
+              timerElement.textContent = "Expirado";
+              timerElement.classList.add("text-red-500", "border-red-500");
+            }
+          }, 1000);
+        }
+
+        function resetTimer() {
+          clearInterval(timerInterval);
+          const timerElement = document.getElementById("pixTimer");
+          timerElement.textContent = "05:00";
+          timerElement.classList.remove("text-red-500", "border-red-500");
+        }
+
+        // Format currency input
+        const amountInput = document.getElementById("amount");
+        amountInput.addEventListener("input", function (e) {
+          let value = e.target.value.replace(/\D/g, "");
+          value = (value / 100).toFixed(2) + "";
+          value = value.replace(".", ",");
+          value = value.replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1.");
+
+          e.target.value = value;
+        });
+      });
+    </script>
+  </body>
+</html>

@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Notificação de Transação | Woovi-Test</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap");
+
+      body {
+        font-family: "Inter", sans-serif;
+        background-color: #f3f4f6;
+      }
+
+      .transaction-card {
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+          0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        transition: all 0.3s ease;
+      }
+
+      .transaction-card:hover {
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1),
+          0 4px 6px -2px rgba(0, 0, 0, 0.05);
+      }
+
+      .status-received {
+        background-color: #ecfdf5;
+        color: #059669;
+      }
+
+      .status-sent {
+        background-color: #fef2f2;
+        color: #dc2626;
+      }
+
+      .gradient-header {
+        background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+      }
+    </style>
+  </head>
+  <body class="bg-gray-100">
+    <div class="max-w-2xl mx-auto my-8">
+      <!-- Header -->
+      <div class="gradient-header rounded-t-lg p-6 text-center">
+        <div class="flex justify-center mb-4">
+          <div class="bg-white p-3 rounded-full">
+            <i class="fas fa-exchange-alt text-2xl text-indigo-600"></i>
+          </div>
+        </div>
+        <h1 class="text-2xl font-bold text-white">Notificação de Transação</h1>
+        <p class="text-indigo-100 mt-2">
+          Você recebeu uma nova atualização em sua conta
+        </p>
+      </div>
+
+      <!-- Content -->
+      <div class="bg-white p-6 rounded-b-lg">
+        <p class="text-gray-700 mb-6">
+          Olá <span class="font-semibold">[Nome do Usuário]</span>,
+        </p>
+
+        <p class="text-gray-700 mb-6">
+          Uma nova transação foi realizada em sua conta Woovi-Test. Confira os
+          detalhes abaixo:
+        </p>
+
+        <!-- Transaction Card -->
+        <div class="transaction-card border rounded-lg p-6 mb-6">
+          <div class="flex justify-between items-center mb-4">
+            <span
+              id="transactionStatus"
+              class="status-received px-3 py-1 rounded-full text-sm font-medium"
+            >
+              <i class="fas fa-arrow-down mr-1"></i> Recebimento
+            </span>
+            <span class="text-gray-500 text-sm">[Data e Hora]</span>
+          </div>
+
+          <div class="flex items-center justify-between mb-4">
+            <div>
+              <p class="text-gray-500 text-sm">Valor</p>
+              <p
+                id="transactionAmount"
+                class="text-2xl font-bold text-gray-800"
+              >
+                R$ 1.250,00
+              </p>
+            </div>
+            <div class="bg-indigo-50 p-3 rounded-full">
+              <i class="fas fa-hand-holding-usd text-xl text-indigo-600"></i>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-4 mb-4">
+            <div>
+              <p class="text-gray-500 text-sm">De</p>
+              <p class="font-medium text-gray-800">Empresa XYZ</p>
+            </div>
+            <div>
+              <p class="text-gray-500 text-sm">Para</p>
+              <p class="font-medium text-gray-800">Sua Conta</p>
+            </div>
+          </div>
+
+          <div class="mb-4">
+            <p class="text-gray-500 text-sm">Descrição</p>
+            <p class="font-medium text-gray-800">
+              Pagamento pelo serviço prestado
+            </p>
+          </div>
+
+          <div class="mb-2">
+            <p class="text-gray-500 text-sm">ID da Transação</p>
+            <p class="font-mono text-gray-800">TXN-7890-4567-1234</p>
+          </div>
+        </div>
+
+        <div class="bg-indigo-50 rounded-lg p-4 mb-6">
+          <div class="flex">
+            <div class="flex-shrink-0">
+              <i class="fas fa-info-circle text-indigo-500 mt-1 mr-3"></i>
+            </div>
+            <div>
+              <p class="text-sm text-indigo-700">
+                Esta transação pode levar até 2 horas úteis para ser processada
+                e refletir no seu saldo disponível.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="text-center mb-6">
+          <a
+            href="#"
+            class="inline-block bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-3 px-6 rounded-lg transition duration-300"
+          >
+            Ver Detalhes da Transação
+          </a>
+        </div>
+
+        <p class="text-gray-700 mb-4">
+          Se você não reconhece esta transação, entre em contato imediatamente
+          com nosso suporte.
+        </p>
+
+        <p class="text-gray-700">
+          Atenciosamente,<br />
+          <span class="font-semibold">Equipe Woovi-Test</span>
+        </p>
+      </div>
+
+      <!-- Footer -->
+      <div
+        class="bg-white rounded-lg mt-4 p-6 text-center text-sm text-gray-500"
+      >
+        <div class="flex justify-center space-x-4 mb-4">
+          <a href="#" class="text-indigo-600 hover:text-indigo-800"
+            >Central de Ajuda</a
+          >
+          <span>•</span>
+          <a href="#" class="text-indigo-600 hover:text-indigo-800"
+            >Termos de Uso</a
+          >
+          <span>•</span>
+          <a href="#" class="text-indigo-600 hover:text-indigo-800"
+            >Privacidade</a
+          >
+        </div>
+        <p>© 2023 Woovi-Test. Todos os direitos reservados.</p>
+        <p class="mt-2">
+          Este e-mail foi enviado para
+          <span class="text-indigo-600">[Email do Usuário]</span>.
+        </p>
+        <p class="mt-2">
+          <a href="#" class="text-indigo-600 hover:underline"
+            >Cancelar inscrição</a
+          >
+          para deixar de receber e-mails como este.
+        </p>
+      </div>
+    </div>
+
+    <script>
+      // This script can be used to dynamically change the transaction type and appearance
+      document.addEventListener("DOMContentLoaded", function () {
+        // Example: Change to sent transaction
+        // setAsSentTransaction();
+        // Example: Change to received transaction
+        // setAsReceivedTransaction();
+      });
+
+      function setAsSentTransaction() {
+        const statusElement = document.getElementById("transactionStatus");
+        statusElement.className =
+          "status-sent px-3 py-1 rounded-full text-sm font-medium";
+        statusElement.innerHTML = '<i class="fas fa-arrow-up mr-1"></i> Envio';
+
+        document.getElementById("transactionAmount").textContent = "R$ 850,00";
+
+        // Change icon and colors as needed
+      }
+
+      function setAsReceivedTransaction() {
+        const statusElement = document.getElementById("transactionStatus");
+        statusElement.className =
+          "status-received px-3 py-1 rounded-full text-sm font-medium";
+        statusElement.innerHTML =
+          '<i class="fas fa-arrow-down mr-1"></i> Recebimento';
+
+        document.getElementById("transactionAmount").textContent =
+          "R$ 1.250,00";
+
+        // Change icon and colors as needed
+      }
+    </script>
+  </body>
+</html>

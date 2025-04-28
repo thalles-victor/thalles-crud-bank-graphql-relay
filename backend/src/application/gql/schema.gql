@@ -1,0 +1,32 @@
+input SinUpInputType {
+  name: String
+  email: String
+  password: String
+}
+
+type UserObjType {
+  name: String
+  email: String
+  #password: String  comentenaod para esconder a senha
+  deletedAt: String
+  createdAt: String
+  updatedAt: String
+}
+
+type AccessTokenObjType {
+  token: String
+  expiresIn: String
+}
+
+type AuthResponse {
+  user: UserObjType
+  accessToken: AccessTokenObjType
+}
+
+type Query {
+  hello: String
+}
+
+type Mutation {
+  signUp(authDto: SinUpInputType): AuthResponse
+}
