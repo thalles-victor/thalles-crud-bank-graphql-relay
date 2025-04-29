@@ -1,4 +1,6 @@
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Image from "next/image";
+import GraphQlLogo from "../../public/graphql-logo.svg";
 
 export default function Home() {
   return (
@@ -18,16 +20,17 @@ export default function Home() {
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
                 <a
-                  href="#"
-                  className="px-6 py-3 bg-white text-purple-600 rounded-lg font-bold text-center hover:bg-gray-100 transition-colors"
+                  href="/dashboard"
+                  className="flex items-center px-6 py-3 bg-white text-purple-600 rounded-lg font-bold text-center hover:bg-gray-100 transition-colors"
                 >
                   Comece agora <i className="fas fa-arrow-right ml-2"></i>
                 </a>
                 <a
-                  href="#"
-                  className="px-6 py-3 border border-white rounded-lg font-medium text-center hover:bg-white hover:bg-opacity-10 transition-colors"
+                  href="http://localhost:3333/graphql"
+                  className="flex gap-2  items-center px-6 py-3 border border-white rounded-lg font-medium text-center hover:bg-white hover:bg-opacity-10 transition-colors hover:text-purple-600"
                 >
-                  Documentação da API
+                  Documentação
+                  <Image src={GraphQlLogo} alt="graphql" height={32} />
                 </a>
               </div>
             </div>
