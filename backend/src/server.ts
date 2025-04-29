@@ -24,53 +24,61 @@ const typeDefs = gql(
 );
 
 async function bootstrap() {
-  await mongoose.connect(ENV.MONGO_URL_CONNECTION);
+  try {
+    console.log(ENV.MONGO_URL_CONNECTION);
 
-  const server = new ApolloServer({
-    typeDefs,
-    resolvers,
-    plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],
-    formatError: (formattedError, error: any) => {
-      let errorObject;
-      try {
-        errorObject = JSON.parse(error.message);
-      } catch {
-        console.error(error);
+    await mongoose.connect(
+      "mongodb://localhost:27017?replicaSet=rs0&authSource=admin"
+    );
+
+    const server = new ApolloServer({
+      typeDefs,
+      resolvers,
+      plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],
+      formatError: (formattedError, error: any) => {
+        let errorObject;
+        try {
+          errorObject = JSON.parse(error.message);
+        } catch {
+          console.error(error);
+          return {
+            message: "Internal server error",
+            status: 500,
+          };
+        }
+
+        if (errorObject.message && errorObject.statusCode) {
+          return {
+            message: errorObject.message,
+            status: errorObject.statusCode,
+          };
+        }
+
         return {
           message: "Internal server error",
           status: 500,
         };
-      }
+      },
+    });
 
-      if (errorObject.message && errorObject.statusCode) {
-        return {
-          message: errorObject.message,
-          status: errorObject.statusCode,
-        };
-      }
+    await server.start();
 
-      return {
-        message: "Internal server error",
-        status: 500,
-      };
-    },
-  });
+    app.use(cors());
+    app.use(bodyParser());
+    app.use(
+      koaMiddleware(server, {
+        context: async ({ ctx }) => ({ token: ctx.headers.token }),
+      })
+    );
 
-  await server.start();
+    await new Promise((resolve) =>
+      httpServer.listen({ port: 3000 }, resolve as any)
+    );
 
-  app.use(cors());
-  app.use(bodyParser());
-  app.use(
-    koaMiddleware(server, {
-      context: async ({ ctx }) => ({ token: ctx.headers.token }),
-    })
-  );
-
-  await new Promise((resolve) =>
-    httpServer.listen({ port: 3000 }, resolve as any)
-  );
-
-  console.log(`🚀 Server ready at http://localhost:3000`);
+    console.log(`🚀 Server ready at http://localhost:3000`);
+  } catch (e) {
+    console.error(e);
+  }
 }
 
 bootstrap();
