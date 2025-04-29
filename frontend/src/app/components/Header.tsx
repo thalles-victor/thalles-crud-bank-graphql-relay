@@ -47,7 +47,7 @@ export function Header() {
               <i className="fas fa-bars text-2xl"></i>
             </button>
             <a
-              href="#"
+              href="sign-up"
               className="hidden md:block px-4 py-2 bg-purple-600 text-white rounded-lg font-medium hover:bg-purple-700 transition-colors"
             >
               Abra sua conta

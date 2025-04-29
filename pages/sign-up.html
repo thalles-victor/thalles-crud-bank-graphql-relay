@@ -408,6 +408,7 @@
         const nextButtons = document.querySelectorAll(".next-step");
         const prevButtons = document.querySelectorAll(".prev-step");
         const stepContents = document.querySelectorAll(".step-content");
+        // const steps = document.querySelectorAll(".step");
         const steps = document.querySelectorAll(".step");
         const emailInput = document.getElementById("email");
         const emailDisplay = document.getElementById("email-display");
@@ -427,6 +428,7 @@
 
               // Update step indicators
               const currentStepNumber = parseInt(currentStep.dataset.step);
+              // const currentStepNumber = 2;
               steps[currentStepNumber]
                 .querySelector("div")
                 .classList.remove("bg-purple-600", "text-white");
