@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import { ROLE } from "../@shared/authMiddleWare";
 
 interface IUser {
   name: string;
@@ -7,17 +8,19 @@ interface IUser {
   activatedAt: Date | null;
   deletedAt: Date | null;
   password: string | null;
+  role: keyof typeof ROLE;
   createdAt: Date;
   updatedAt: Date;
 }
 
 export const userSchema = new mongoose.Schema<IUser>({
   name: { type: String, required: true },
-  email: { type: String, required: true, unique: true },
-  cpfCnpj: { type: String, required: true },
+  email: { type: String, required: true, unique: true, indexes: true },
+  cpfCnpj: { type: String, required: true, unique: true, indexes: true },
   password: { type: String, required: false, default: null },
   activatedAt: { type: Date, required: false, default: null },
   deletedAt: { type: Date, required: false, default: null },
+  role: { type: String, enum: ROLE, required: true, default: "USER" },
   createdAt: { type: Date, required: true },
   updatedAt: { type: Date, required: true },
 });

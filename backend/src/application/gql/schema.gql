@@ -1,3 +1,30 @@
+# Start -> Objects Types ----------
+type UserObjType {
+  name: String!
+  email: String!
+  activatedAt: String
+  deletedAt: String
+  createdAt: String!
+  updatedAt: String!
+  role: String!
+}
+
+type AccessTokenObjType {
+  token: String!
+  expiresIn: String!
+}
+
+type WalletObjectType {
+  balance: Int!
+  userId: String!
+  cpfCnpj: String!
+  deletedAt: String
+  createdAt: String!
+  updatedAt: String!
+}
+# End -> Objects Types ----------
+
+# Start -> Inputs And Responses ----------
 input SignUpInputType {
   name: String!
   email: String!
@@ -12,20 +39,6 @@ input SignInInputType {
 
 input GenerateConfirmationTokenInputType {
   email: String!
-}
-
-type UserObjType {
-  name: String!
-  email: String!
-  activatedAt: String
-  deletedAt: String
-  createdAt: String!
-  updatedAt: String!
-}
-
-type AccessTokenObjType {
-  token: String!
-  expiresIn: String!
 }
 
 type AuthResponse {
@@ -61,11 +74,17 @@ input CreatePasswordInputType {
 }
 
 type CreatePasswordResponse {
-  user: UserObjType
-  accessToken: AccessTokenObjType
+  user: UserObjType!
+  accessToken: AccessTokenObjType!
 }
 
+type GetWalletReWalletObjectTypeResponse {
+  wallet: WalletObjectType!
+}
+# End -> Inputs And Responses ----------
+
 type Mutation {
+  # Auth
   signUp(authDto: SignUpInputType!): SignUpResponse
   signIn(authDto: SignInInputType!): AuthResponse
   generateConfirmationToken(
@@ -75,4 +94,9 @@ type Mutation {
     inputDto: ValidateConfirmationTokenInputType
   ): ValidateConfirmationTokenResponse
   createPassword(inputDto: CreatePasswordInputType!): CreatePasswordResponse
+}
+
+type Query {
+  # Wallet
+  getWallet: GetWalletReWalletObjectTypeResponse
 }

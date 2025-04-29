@@ -64,7 +64,7 @@ async function bootstrap() {
     app.use(bodyParser());
     app.use(
       koaMiddleware(server, {
-        context: async ({ ctx }) => ({ token: ctx.headers.token }),
+        context: async ({ ctx }) => ctx,
       })
     );
 

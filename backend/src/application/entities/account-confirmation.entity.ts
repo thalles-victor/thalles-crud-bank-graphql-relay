@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+import mongoose, { Schema } from "mongoose";
 
 interface IAccountConfirmation {
   userId: string;
@@ -8,9 +8,9 @@ interface IAccountConfirmation {
 }
 
 export const accountSchema = new mongoose.Schema<IAccountConfirmation>({
-  userId: { type: String, required: true },
+  userId: { type: String, required: true, indexes: true },
   expiresAt: { type: Date, required: true },
-  attempts: { type: Number, required: true, default: 0 },
+  attempts: { type: Schema.Types.Number, required: true, default: 0 },
   token: { type: String, required: false, default: null },
 });
 

@@ -1,6 +1,6 @@
 import { authService } from "../@shared/singletons";
 
-export const authResolver = {
+export const authMutationResolver = {
   signUp: async (_: any, args: any, contextValue: any, info: any) => {
     const authDto = args.authDto;
 

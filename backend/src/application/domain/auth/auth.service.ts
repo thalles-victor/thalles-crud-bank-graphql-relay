@@ -13,6 +13,7 @@ import {
   generateFixedLengthRandomNumber,
   generateFutureDateInMinutes,
 } from "../../@shared/utils";
+import { WalletModel } from "../../entities/wallet.entity";
 
 export class AuthService {
   async signUp(signUpDto: z.infer<typeof signUpDtoSchema>) {
@@ -130,6 +131,7 @@ export class AuthService {
 
     const payload: PayloadType = {
       sub: userExist._id.toString(),
+      role: userExist.role,
     };
 
     const token = JSONWebToken.sign(payload, ENV.JWT_SECRET, {
@@ -144,6 +146,7 @@ export class AuthService {
         updatedAt: userExist.updatedAt,
         deletedAt: userExist.deletedAt,
         activatedAt: userExist.activatedAt,
+        role: userExist.role,
       },
       accessToken: {
         token,
@@ -294,7 +297,21 @@ export class AuthService {
         }
       );
 
-      // create wallet
+      await WalletModel.create(
+        [
+          {
+            balance: 0,
+            userId: user._id.toString(),
+            cpfCnpj: user.cpfCnpj,
+            deletedAt: null,
+            createdAt: new Date(),
+            updatedAt: new Date(),
+          },
+        ],
+        {
+          session,
+        }
+      );
 
       await session.commitTransaction();
 
@@ -361,6 +378,7 @@ export class AuthService {
 
       const payload: PayloadType = {
         sub: user._id.toString(),
+        role: user.role,
       };
 
       const jwtToken = await JSONWebToken.sign(payload, ENV.JWT_SECRET, {
@@ -377,6 +395,7 @@ export class AuthService {
           createdAt: user.createdAt,
           updatedAt: user.updatedAt,
           deletedAt: user.deletedAt,
+          role: user.role,
         },
 
         accessToken: {
