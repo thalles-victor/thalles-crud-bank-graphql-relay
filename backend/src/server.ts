@@ -27,9 +27,7 @@ async function bootstrap() {
   try {
     console.log(ENV.MONGO_URL_CONNECTION);
 
-    await mongoose.connect(
-      "mongodb://localhost:27017?replicaSet=rs0&authSource=admin"
-    );
+    await mongoose.connect(ENV.MONGO_URL_CONNECTION);
 
     const server = new ApolloServer({
       typeDefs,
