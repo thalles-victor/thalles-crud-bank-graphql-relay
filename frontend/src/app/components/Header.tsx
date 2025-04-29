@@ -1,15 +1,23 @@
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+
 export function Header() {
   return (
     // <!-- Header -->
     <header className="bg-white shadow-sm">
       <div className="container mx-auto px-4 py-4">
         <div className="flex justify-between items-center">
-          <div className="flex items-center space-x-2">
-            <div className="w-10 h-10 rounded-full bg-purple-600 flex items-center justify-center">
-              <i className="fas fa-university text-white text-xl"></i>
+          <a href="/" className="cursor-pointer">
+            <div className="flex items-center space-x-2">
+              <div className="w-10 h-10 rounded-full bg-purple-600 flex items-center justify-center">
+                <FontAwesomeIcon
+                  icon="university"
+                  width={32}
+                  className="text-white text-xl"
+                />
+              </div>
+              <h1 className="text-2xl font-bold text-purple-600">Woovi-Test</h1>
             </div>
-            <h1 className="text-2xl font-bold text-purple-600">Woovi-Test</h1>
-          </div>
+          </a>
           <nav className="hidden md:flex space-x-8">
             <a
               href="#"
@@ -51,6 +59,12 @@ export function Header() {
               className="hidden md:block px-4 py-2 bg-purple-600 text-white rounded-lg font-medium hover:bg-purple-700 transition-colors"
             >
               Abra sua conta
+            </a>
+            <a
+              href="sign-in"
+              className="hidden md:block px-4 py-2 text-purple-600 bg-white rounded-lg font-medium hover:bg-purple-700 hover:text-white transition-colors"
+            >
+              Já tenho uma conta
             </a>
           </div>
         </div>
