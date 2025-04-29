@@ -3,6 +3,11 @@ import "dotenv/config";
 import z from "zod";
 
 const ENVSchema = z.object({
+  // Self Backend
+  SELF_BACKEND_PROTOCOL: z.string().nonempty(),
+  SELF_BACKEND_DOMAIN: z.string().nonempty(),
+  SELF_BACKEND_PORT: z.string().nonempty(),
+
   // JWT
   JWT_SECRET: z.string().nonempty(),
   JWT_EXPIRES_IN: z.string().nonempty(),

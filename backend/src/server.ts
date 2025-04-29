@@ -8,7 +8,6 @@ import { ApolloServerPluginDrainHttpServer } from "@apollo/server/plugin/drainHt
 import { koaMiddleware } from "@as-integrations/koa";
 import bodyParser from "koa-bodyparser";
 import mongoose from "mongoose";
-import { CustomErrorResponse } from "./application/@shared/error";
 import { resolvers } from "./application/gql/resolvers";
 import { readFileSync } from "node:fs";
 import * as path from "node:path";
@@ -70,10 +69,12 @@ async function bootstrap() {
     );
 
     await new Promise((resolve) =>
-      httpServer.listen({ port: 3333 }, resolve as any)
+      httpServer.listen({ port: ENV.SELF_BACKEND_PORT }, resolve as any)
     );
 
-    console.log(`🚀 Server ready at http://localhost:3333`);
+    console.log(
+      `🚀 Server ready at ${ENV.SELF_BACKEND_PROTOCOL}://${ENV.SELF_BACKEND_DOMAIN}:${ENV.SELF_BACKEND_PORT}`
+    );
   } catch (e) {
     console.error(e);
   }
