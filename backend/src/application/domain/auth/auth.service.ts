@@ -88,12 +88,24 @@ export class AuthService {
       email: signInDto.email,
     }).exec();
 
-    console.log(userExist);
-
     if (!userExist) {
       throw new CustomErrorResponse({
         message: "user not found",
         statusCode: 404,
+      });
+    }
+
+    if (userExist.deletedAt) {
+      throw new CustomErrorResponse({
+        message: "user deleted or banned",
+        statusCode: 406,
+      });
+    }
+
+    if (!userExist.activatedAt) {
+      throw new CustomErrorResponse({
+        message: "require activate account",
+        statusCode: 406,
       });
     }
 
@@ -104,17 +116,17 @@ export class AuthService {
       });
     }
 
-    if (await bcrypt.compare(signInDto.password, userExist.password)) {
+    const passwordMatches = await bcrypt.compare(
+      signInDto.password,
+      userExist.password
+    );
+
+    if (!passwordMatches) {
       throw new CustomErrorResponse({
         message: "invalid password",
         statusCode: 401,
       });
     }
-
-    const response = {
-      name: userExist.name,
-      email: userExist.password,
-    };
 
     const payload: PayloadType = {
       sub: userExist._id.toString(),
@@ -125,7 +137,14 @@ export class AuthService {
     });
 
     return {
-      user: response,
+      user: {
+        name: userExist.name,
+        email: userExist.email,
+        createdAt: userExist.createdAt,
+        updatedAt: userExist.updatedAt,
+        deletedAt: userExist.deletedAt,
+        activatedAt: userExist.activatedAt,
+      },
       accessToken: {
         token,
         expiresIn: "24h",

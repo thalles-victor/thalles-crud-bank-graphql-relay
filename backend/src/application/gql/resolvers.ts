@@ -17,6 +17,14 @@ export const resolvers = {
       };
     },
 
+    signIn: async (_: any, args: any, contextValue: any, info: any) => {
+      const authDto = args.authDto;
+
+      const authResult = await authService.signIn(authDto);
+
+      return authResult;
+    },
+
     generateConfirmationToken: async (
       _: any,
       args: any,
