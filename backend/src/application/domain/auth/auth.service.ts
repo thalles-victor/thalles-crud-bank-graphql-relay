@@ -3,11 +3,16 @@ import { UserModel } from "../../entities/user.entity";
 import { signInDtoSchema, signUpDtoSchema } from "./dtos/dtos";
 import { z } from "zod";
 import bcrypt from "bcrypt";
-import jwt from "jsonwebtoken";
+import JSONWebToken from "jsonwebtoken";
 import { PayloadType } from "../../@shared/types";
 import { ENV } from "../../@shared/env";
-import { AccountModel } from "../../entities/account.entity";
+import { AccountModel } from "../../entities/account-confirmation.entity";
 import mongoose from "mongoose";
+import { transport } from "../../infra/Mail/node-mailer.conf";
+import {
+  generateFixedLengthRandomNumber,
+  generateFutureDateInMinutes,
+} from "../../@shared/utils";
 
 export class AuthService {
   async signUp(signUpDto: z.infer<typeof signUpDtoSchema>) {
@@ -19,73 +24,54 @@ export class AuthService {
 
       validateSchema(signUpDto, signUpDtoSchema);
 
-      const userExist = await UserModel.findOne({
+      const userExistByEmail = await UserModel.findOne({
         email: signUpDto.email,
       }).exec();
 
-      if (userExist) {
+      if (userExistByEmail) {
         throw new CustomErrorResponse({
           message: "user already exist",
           statusCode: 401,
         });
       }
 
-      const salt = await bcrypt.genSalt(12);
+      const userExistByCpfCnpj = await UserModel.findOne({
+        cpfCnpj: signUpDto.cpfCnpj,
+      });
 
-      const hashedPassword = await bcrypt.hash(signUpDto.password, salt);
+      if (userExistByCpfCnpj) {
+        throw new CustomErrorResponse({
+          message: "cpf cnpj in used",
+          statusCode: 406,
+        });
+      }
 
       const [userCreated] = await UserModel.create(
         [
           {
             name: signUpDto.name,
             email: signUpDto.email,
-            password: hashedPassword,
-          },
-        ],
-        {
-          session,
-        }
-      );
-
-      // create account
-
-      await AccountModel.create(
-        [
-          {
-            email: userCreated.email,
-            balance: 0,
+            activatedAt: null,
+            cpfCnpj: signUpDto.cpfCnpj,
+            deletedAt: null,
+            password: null,
             createdAt: new Date(),
             updatedAt: new Date(),
-            isDeleted: null,
-            userId: userCreated._id.toString(),
           },
         ],
         {
           session,
         }
       );
-
-      const response = {
-        name: userCreated.name,
-        email: userCreated.password,
-      };
-
-      const payload: PayloadType = {
-        sub: userCreated._id.toString(),
-      };
-
-      const token = jwt.sign(payload, ENV.JWT_SECRET, {
-        expiresIn: "24h",
-      });
 
       await session.commitTransaction();
 
       return {
-        user: response,
-        accessToken: {
-          token,
-          expiresIn: "24h",
-        },
+        name: userCreated.name,
+        email: userCreated.email,
+        deletedAt: userCreated.deletedAt,
+        createdAt: userCreated.createdAt,
+        updatedAt: userCreated.updatedAt,
       };
     } catch (e) {
       session.abortTransaction();
@@ -106,14 +92,21 @@ export class AuthService {
 
     if (!userExist) {
       throw new CustomErrorResponse({
-        message: "user not exist",
+        message: "user not found",
         statusCode: 404,
+      });
+    }
+
+    if (!userExist.password) {
+      throw new CustomErrorResponse({
+        message: "It is necessary to register a password",
+        statusCode: 406,
       });
     }
 
     if (await bcrypt.compare(signInDto.password, userExist.password)) {
       throw new CustomErrorResponse({
-        message: "password invalid",
+        message: "invalid password",
         statusCode: 401,
       });
     }
@@ -127,7 +120,7 @@ export class AuthService {
       sub: userExist._id.toString(),
     };
 
-    const token = jwt.sign(payload, ENV.JWT_SECRET, {
+    const token = JSONWebToken.sign(payload, ENV.JWT_SECRET, {
       expiresIn: "24h",
     });
 
@@ -138,5 +131,245 @@ export class AuthService {
         expiresIn: "24h",
       },
     };
+  }
+
+  async generateConfirmationToken(email: string) {
+    const session = await mongoose.startSession();
+
+    try {
+      session.startTransaction();
+
+      const user = await UserModel.findOne({ email }).session(session).exec();
+
+      if (!user) {
+        throw new CustomErrorResponse({
+          message: "unregistered user",
+          statusCode: 401,
+        });
+      }
+
+      let accountConfirmation = await AccountModel.findOne({
+        userId: user._id.toString(),
+      }).exec();
+
+      if (!accountConfirmation) {
+        const [accountConfirmationCreated] = await AccountModel.create(
+          [
+            {
+              attempts: 0,
+              expiresAt: generateFutureDateInMinutes(5),
+              token: generateFixedLengthRandomNumber(4),
+              userId: user._id.toString(),
+            },
+          ],
+          {
+            session,
+          }
+        );
+
+        accountConfirmation = accountConfirmationCreated;
+      }
+
+      transport.sendMail({
+        from: "Fake Woovi Project",
+        subject: "Email de teste da confirmação da conta",
+        to: user.email,
+        text: "parabéns por realizar o catastro na woofi",
+        html: `
+        <p>Parabens por realizar o cadastro na woofi, agora você pode desfrutrar dos nossos serviços.</p>
+        <span>seu token é: ${accountConfirmation.token}</span>
+        `,
+      });
+
+      await session.commitTransaction();
+
+      return {
+        message: "token was send to email",
+      };
+    } catch (e) {
+      await session.abortTransaction();
+      throw e;
+    } finally {
+      await session.endSession();
+    }
+  }
+
+  async validateConfToken(email: string, token: string) {
+    const session = await mongoose.startSession();
+
+    try {
+      session.startTransaction();
+
+      const user = await UserModel.findOne({ email }).session(session).exec();
+
+      if (!user || user.activatedAt) {
+        //se o usúário já foi ativo ele não precisa mais passar por esse procedimento
+        throw new CustomErrorResponse({
+          message: "user not found",
+          statusCode: 404,
+        });
+      }
+
+      const accountConf = await AccountModel.findOne({
+        userId: user.id,
+      }).exec();
+
+      if (!accountConf) {
+        throw new CustomErrorResponse({
+          message: "account confirmation not was created",
+          statusCode: 401,
+        });
+      }
+
+      if (!accountConf?.token) {
+        throw new CustomErrorResponse({
+          message: "necessary to generate the confirmation token",
+          statusCode: 406,
+        });
+      }
+
+      if (accountConf?.expiresAt.getTime() < new Date().getTime()) {
+        /**delete all from user to reset the register */
+        await AccountModel.deleteOne({ userId: user._id.toString() }).exec();
+        await UserModel.deleteOne({ _id: user._id }).exec();
+
+        throw new CustomErrorResponse({
+          message: "confirmation token has expired",
+          statusCode: 406,
+        });
+      }
+
+      const result = token === accountConf.token;
+
+      if (accountConf.attempts >= 10) {
+        /**delete all from user to reset the register */
+        await AccountModel.deleteOne({ userId: user._id.toString() }).exec();
+        await UserModel.deleteOne({ _id: user._id }).exec();
+
+        throw new CustomErrorResponse({
+          message: "number of attempts exceeded then remove account",
+          statusCode: 400,
+        });
+      }
+
+      if (!result) {
+        await AccountModel.updateOne(
+          { userId: user.id },
+          {
+            attempts: accountConf.attempts + 1,
+          }
+        );
+
+        return {
+          message: "fail",
+        };
+      }
+
+      await UserModel.updateOne(
+        { email },
+        {
+          activatedAt: new Date(),
+        },
+        {
+          session,
+        }
+      );
+
+      // create wallet
+
+      await session.commitTransaction();
+
+      // send mail to confirm the register
+      await transport.sendMail({
+        from: "Fake Woovi Project",
+        to: user.email,
+        subject: "Email de teste da confirmação da conta",
+        text: "parabéns por realizar o catastro na woofi",
+        html: `
+        <p>Parabens por realizar o cadastro na woofi, agora você pode desfrutrar dos nossos serviços.</p>
+        `,
+      });
+
+      return {
+        message: "success",
+      };
+    } catch (e) {
+      await session.abortTransaction();
+      throw e;
+    } finally {
+      await session.endSession();
+    }
+  }
+
+  async createPassword(email: string, password: string) {
+    const session = await mongoose.startSession();
+
+    try {
+      session.startTransaction();
+
+      const user = await UserModel.findOne({
+        email: email,
+      }).exec();
+
+      if (!user) {
+        throw new CustomErrorResponse({
+          message: "user not found",
+          statusCode: 404,
+        });
+      }
+
+      if (user.password) {
+        throw new CustomErrorResponse({
+          message: "user already have a password",
+          statusCode: 406,
+        });
+      }
+
+      if (!user.activatedAt) {
+        throw new CustomErrorResponse({
+          message: "require confirm the account to create password",
+          statusCode: 406,
+        });
+      }
+
+      const salt = await bcrypt.genSalt(12);
+
+      const hashedPassword = await bcrypt.hash(password, salt);
+
+      await UserModel.updateOne({
+        password: hashedPassword,
+      });
+
+      const payload: PayloadType = {
+        sub: user._id.toString(),
+      };
+
+      const jwtToken = await JSONWebToken.sign(payload, ENV.JWT_SECRET, {
+        expiresIn: ENV.JWT_EXPIRES_IN as any,
+      });
+
+      await session.commitTransaction();
+
+      return {
+        user: {
+          name: user.name,
+          email: user.email,
+          activatedAt: user.activatedAt,
+          createdAt: user.createdAt,
+          updatedAt: user.updatedAt,
+          deletedAt: user.deletedAt,
+        },
+
+        accessToken: {
+          token: jwtToken,
+          expiresIn: ENV.JWT_EXPIRES_IN,
+        },
+      };
+    } catch (e) {
+      await session.abortTransaction();
+      throw e;
+    } finally {
+      await session.endSession();
+    }
   }
 }

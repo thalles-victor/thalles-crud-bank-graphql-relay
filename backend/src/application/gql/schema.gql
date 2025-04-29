@@ -1,32 +1,78 @@
-input SinUpInputType {
-  name: String
-  email: String
-  password: String
+input SignUpInputType {
+  name: String!
+  email: String!
+  cpfCnpj: String!
+  phone: String
+}
+
+input SignInInputType {
+  email: String!
+  password: String!
+}
+
+input GenerateConfirmationTokenInputType {
+  email: String!
 }
 
 type UserObjType {
-  name: String
-  email: String
-  #password: String  comentenaod para esconder a senha
+  name: String!
+  email: String!
+  activatedAt: String
   deletedAt: String
-  createdAt: String
-  updatedAt: String
+  createdAt: String!
+  updatedAt: String!
 }
 
 type AccessTokenObjType {
-  token: String
-  expiresIn: String
+  token: String!
+  expiresIn: String!
 }
 
 type AuthResponse {
-  user: UserObjType
-  accessToken: AccessTokenObjType
+  user: UserObjType!
+  accessToken: AccessTokenObjType!
+}
+
+type SignUpResponse {
+  user: UserObjType!
+  message: String!
+}
+
+type GenerateConfirmationTokenResponse {
+  message: String!
 }
 
 type Query {
   hello: String
 }
 
+input ValidateConfirmationTokenInputType {
+  email: String
+  token: String
+}
+
+type ValidateConfirmationTokenResponse {
+  message: String!
+}
+
+input CreatePasswordInputType {
+  email: String!
+  password: String!
+}
+
+type CreatePasswordResponse {
+  user: UserObjType
+  accessToken: AccessTokenObjType
+}
+
 type Mutation {
-  signUp(authDto: SinUpInputType): AuthResponse
+  signUp(authDto: SignUpInputType!): SignUpResponse
+  signIn(authDto: SignInInputType!): AuthResponse
+  generateConfirmationToken(
+    inputDto: GenerateConfirmationTokenInputType!
+  ): GenerateConfirmationTokenResponse
+  validateConfirmationToken(
+    inputDto: ValidateConfirmationTokenInputType
+  ): ValidateConfirmationTokenResponse
+  createPassword(inputDto: CreatePasswordInputType!): CreatePasswordResponse
 }

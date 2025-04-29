@@ -72,10 +72,10 @@ async function bootstrap() {
     );
 
     await new Promise((resolve) =>
-      httpServer.listen({ port: 3000 }, resolve as any)
+      httpServer.listen({ port: 3333 }, resolve as any)
     );
 
-    console.log(`🚀 Server ready at http://localhost:3000`);
+    console.log(`🚀 Server ready at http://localhost:3333`);
   } catch (e) {
     console.error(e);
   }
