@@ -24,6 +24,7 @@ export class AuthService {
       session.startTransaction();
 
       validateSchema(signUpDto, signUpDtoSchema);
+      console.log(signUpDto);
 
       const userExistByEmail = await UserModel.findOne({
         email: signUpDto.email,
@@ -31,7 +32,7 @@ export class AuthService {
 
       if (userExistByEmail) {
         throw new CustomErrorResponse({
-          message: "user already exist",
+          message: "email in used",
           statusCode: 401,
         });
       }
@@ -42,7 +43,7 @@ export class AuthService {
 
       if (userExistByCpfCnpj) {
         throw new CustomErrorResponse({
-          message: "cpf cnpj in used",
+          message: "cpf or cnpj in used",
           statusCode: 406,
         });
       }

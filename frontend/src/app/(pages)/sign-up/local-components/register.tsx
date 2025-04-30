@@ -1,12 +1,37 @@
 "use client";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { RegisterType, useRegisterUser } from "../local-hooks/useRegister";
+import { useForm } from "react-hook-form";
+import { faArrowRight } from "@fortawesome/free-solid-svg-icons";
+import { User } from "../page";
+import { useEffect } from "react";
 
-import { z } from "zod";
+interface RegisterProps {
+  setUserRegistered: (user: User) => void;
+  nextStep: () => void;
+}
 
-export function Register() {
-  function handleRegister() {}
+export function Register({ setUserRegistered, nextStep }: RegisterProps) {
+  const { data, error, createAccount } = useRegisterUser();
+  const { register, handleSubmit } = useForm<RegisterType>();
+
+  function handleRegister(props: RegisterType) {
+    createAccount({
+      name: props.name,
+      cpfCnpj: props.cpfCnpj,
+      email: props.email,
+    });
+  }
+
+  useEffect(() => {
+    if (data) {
+      nextStep();
+      setUserRegistered(data);
+    }
+  }, [data]);
 
   return (
-    <div>
+    <form onSubmit={handleSubmit(handleRegister)}>
       <div className="space-y-4">
         <div>
           <label
@@ -21,6 +46,7 @@ export function Register() {
             className="w-full px-4 py-2 border border-gray-300 rounded-lg input-focus focus:outline-none transition-colors"
             placeholder="Digite seu nome completo"
             required
+            {...register("name")}
           />
         </div>
 
@@ -37,7 +63,9 @@ export function Register() {
             className="w-full px-4 py-2 border border-gray-300 rounded-lg input-focus focus:outline-none transition-colors"
             placeholder="seu@email.com"
             required
+            {...register("email")}
           />
+          {error === "email in used" && <p className="text-red-500">{error}</p>}
         </div>
 
         <div>
@@ -48,13 +76,6 @@ export function Register() {
             CPF
           </label>
 
-          <input
-            type="text"
-            id="document"
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg input-focus focus:outline-none transition-colors"
-            placeholder="000.000.000-00"
-            required
-          />
           <span className="text-sm text-red-400">
             NÃO USE TEU CPF VERDADEIRO,{" "}
             <a
@@ -65,22 +86,18 @@ export function Register() {
               gere um nesse site
             </a>
           </span>
-        </div>
-
-        <div>
-          <label
-            htmlFor="phone"
-            className="block text-sm font-medium text-gray-700 mb-1"
-          >
-            Telefone
-          </label>
           <input
-            type="tel"
-            id="phone"
+            type="text"
+            id="document"
             className="w-full px-4 py-2 border border-gray-300 rounded-lg input-focus focus:outline-none transition-colors"
-            placeholder="(00) 00000-0000"
+            placeholder="000.000.000-00"
             required
+            {...register("cpfCnpj")}
           />
+
+          {error === "cpf or cnpj in used" && (
+            <p className="text-red-500">{error}</p>
+          )}
         </div>
 
         <div className="flex items-start">
@@ -104,6 +121,14 @@ export function Register() {
           </label>
         </div>
       </div>
-    </div>
+      <div className="pt-6 gap-2">
+        <button
+          type="submit"
+          className="w-full gradient-bg text-white py-3 px-4 rounded-lg font-bold hover:opacity-90 transition-opacity next-step"
+        >
+          Continuar <FontAwesomeIcon icon={faArrowRight} className="mt-1" />
+        </button>
+      </div>
+    </form>
   );
 }

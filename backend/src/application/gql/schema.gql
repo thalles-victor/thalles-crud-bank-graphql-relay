@@ -44,7 +44,6 @@ input SignUpInputType {
   name: String!
   email: String!
   cpfCnpj: String!
-  phone: String
 }
 
 input SignInInputType {

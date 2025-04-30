@@ -54,10 +54,7 @@ async function bootstrap() {
         };
       }
 
-      return {
-        message: "Internal server error",
-        status: 500,
-      };
+      return formattedError;
     },
   });
 

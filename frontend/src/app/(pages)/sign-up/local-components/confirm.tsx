@@ -1,6 +1,45 @@
 "use client";
 
-export function Confirm() {
+import { faArrowRight } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { useGenerateConfirmationToken } from "../local-hooks/useGenerateConfirmationToken";
+import { useEffect, useState } from "react";
+import { useValidateConfirmationToken } from "../local-hooks/useValidateConfirmationToken";
+
+import { useForm } from "react-hook-form";
+
+interface ConfirmProps {
+  nextStep: () => void;
+  email: string;
+}
+
+export function Confirm({ nextStep, email }: ConfirmProps) {
+  const { handleGenerateConfirmationToken } = useGenerateConfirmationToken();
+  const { data, handleValidateToken } = useValidateConfirmationToken();
+  const [firsCallToGenerateToken, setFirsCallToGenerateToken] =
+    useState<boolean>(false);
+  const { register, handleSubmit } = useForm<{ token: string }>();
+
+  function verifyConfirmationToken(data: any) {
+    if (data) {
+      handleValidateToken({
+        email,
+        token: data.token,
+      });
+    }
+  }
+
+  useEffect(() => {
+    if (!firsCallToGenerateToken) {
+      handleGenerateConfirmationToken({ email });
+      setFirsCallToGenerateToken(true);
+    }
+
+    if (data === "success") {
+      nextStep();
+    }
+  }, [data]);
+
   return (
     <div>
       <div className="text-center mb-6">
@@ -18,7 +57,10 @@ export function Confirm() {
         </p>
       </div>
 
-      <div className="space-y-4">
+      <form
+        className="space-y-4"
+        onSubmit={handleSubmit(verifyConfirmationToken)}
+      >
         <div>
           <label
             htmlFor="verification-code"
@@ -29,39 +71,10 @@ export function Confirm() {
           <div className="flex space-x-2 justify-center">
             <input
               type="text"
-              maxLength={1}
-              className="w-12 h-12 text-center text-xl border border-gray-300 rounded-lg input-focus focus:outline-none"
+              maxLength={4}
+              className=" h-12 text-center text-xl border border-gray-300 rounded-lg input-focus focus:outline-none w-32"
               required
-            />
-            <input
-              type="text"
-              maxLength={1}
-              className="w-12 h-12 text-center text-xl border border-gray-300 rounded-lg input-focus focus:outline-none"
-              required
-            />
-            <input
-              type="text"
-              maxLength={1}
-              className="w-12 h-12 text-center text-xl border border-gray-300 rounded-lg input-focus focus:outline-none"
-              required
-            />
-            <input
-              type="text"
-              maxLength={1}
-              className="w-12 h-12 text-center text-xl border border-gray-300 rounded-lg input-focus focus:outline-none"
-              required
-            />
-            <input
-              type="text"
-              maxLength={1}
-              className="w-12 h-12 text-center text-xl border border-gray-300 rounded-lg input-focus focus:outline-none"
-              required
-            />
-            <input
-              type="text"
-              maxLength={1}
-              className="w-12 h-12 text-center text-xl border border-gray-300 rounded-lg input-focus focus:outline-none"
-              required
+              {...register("token")}
             />
           </div>
         </div>
@@ -70,6 +83,7 @@ export function Confirm() {
           <button
             type="button"
             className="text-purple-600 text-sm font-medium hover:underline resend-code"
+            onClick={() => handleGenerateConfirmationToken({ email })}
           >
             Reenviar código
           </button>
@@ -77,7 +91,13 @@ export function Confirm() {
             Código expira em <span className="font-medium">04:59</span>
           </p>
         </div>
-      </div>
+        <button
+          type="submit"
+          className="w-full gradient-bg text-white py-3 px-4 rounded-lg font-bold hover:opacity-90 transition-opacity next-step"
+        >
+          Continuar <FontAwesomeIcon icon={faArrowRight} className="mt-1" />
+        </button>
+      </form>
     </div>
   );
 }

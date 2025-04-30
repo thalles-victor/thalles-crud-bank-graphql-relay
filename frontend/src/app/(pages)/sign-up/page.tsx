@@ -9,8 +9,17 @@ import { redirect } from "next/navigation";
 
 export type Steps = "register" | "confirm" | "create-password";
 
+export interface User {
+  name: string;
+  email: string;
+}
+
 export default function SignUpPage() {
+  const [userRegistered, setUserRegistered] = useState<User | null>(null);
   const [step, setStep] = useState<Steps>("register");
+  const [targe, setTarget] = useState();
+
+  console.log("userRegistered is: ", userRegistered);
 
   function nextStep() {
     if (step === "register") setStep("confirm");
@@ -34,21 +43,19 @@ export default function SignUpPage() {
             </p>
           </div>
 
-          <form className="p-6 space-y-6">
+          <div className="p-6 space-y-6">
             <ProgressStep step={step} />
-            {step === "confirm" && <Confirm />}
-            {step === "register" && <Register />}
+            {step === "confirm" && userRegistered && (
+              <Confirm email={userRegistered?.email} nextStep={nextStep} />
+            )}
+            {step === "register" && (
+              <Register
+                setUserRegistered={setUserRegistered}
+                nextStep={nextStep}
+              />
+            )}
             {step === "create-password" && <CratePassword />}
-            <div className="pt-6">
-              <button
-                type="button"
-                className="w-full gradient-bg text-white py-3 px-4 rounded-lg font-bold hover:opacity-90 transition-opacity next-step"
-                onClick={() => nextStep()}
-              >
-                Continuar <i className="fas fa-arrow-right ml-2"></i>
-              </button>
-            </div>
-          </form>
+          </div>
         </div>
       </div>
     </main>
