@@ -1,6 +1,6 @@
 import mongoose, { Schema } from "mongoose";
 
-interface ITransaction {
+export interface ITransaction {
   fromCpfCnpj: string;
   toCpfCnpj: string;
   value: number;
@@ -18,3 +18,14 @@ export const TransactionModel = mongoose.model<ITransaction>(
   "Transactions",
   transactionSchema
 );
+
+export interface TransactionFilter {
+  fromCpfCnpj?: string;
+  toCpfCnpj?: string;
+  minValue?: number;
+  maxValue?: number;
+  startDate?: Date;
+  endDate?: Date;
+  page?: number;
+  limit?: number;
+}

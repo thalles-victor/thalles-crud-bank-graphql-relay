@@ -29,6 +29,14 @@ type TransactionObjType {
   value: Int!
   createdAt: String!
 }
+
+type MetaObjType {
+  total: String!
+  page: String!
+  limit: String!
+  totalPages: String!
+  remainingPages: String!
+}
 # End -> Objects Types ----------
 
 # Start -> Inputs And Responses ----------
@@ -98,6 +106,22 @@ type CreateTransactionResponse {
   wallet: WalletObjectType!
   transaction: TransactionObjType!
 }
+
+input TransactionSearchInput {
+  fromCpfCnpj: String
+  toCpfCnpj: String
+  minValue: Float
+  maxValue: Float
+  startDate: String
+  endDate: String
+  page: Int = 1
+  limit: Int = 10
+}
+
+type TransactionSearchResponse {
+  data: [TransactionObjType]
+  meta: MetaObjType
+}
 # End -> Inputs And Responses ----------
 
 type Mutation {
@@ -121,4 +145,10 @@ type Mutation {
 type Query {
   # Wallet
   getWallet: GetWalletReWalletObjectTypeResponse
+  searchTransactionsFromBearerAuth(
+    filters: TransactionSearchInput
+  ): TransactionSearchResponse
+  searchTransactionsAsSuper(
+    filters: TransactionSearchInput
+  ): TransactionSearchResponse
 }

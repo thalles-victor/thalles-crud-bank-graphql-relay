@@ -354,6 +354,8 @@ export class AuthService {
         });
       }
 
+      console.log(user);
+
       if (user.password) {
         throw new CustomErrorResponse({
           message: "user already have a password",
@@ -372,9 +374,17 @@ export class AuthService {
 
       const hashedPassword = await bcrypt.hash(password, salt);
 
-      await UserModel.updateOne({
-        password: hashedPassword,
-      });
+      await UserModel.updateOne(
+        {
+          _id: user.id,
+        },
+        {
+          password: hashedPassword,
+        },
+        {
+          session,
+        }
+      );
 
       const payload: PayloadType = {
         sub: user._id.toString(),
