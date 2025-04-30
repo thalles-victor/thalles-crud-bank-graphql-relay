@@ -1,5 +1,5 @@
 import { authMutationResolver } from "./auth.resolver";
-import { walletQueryResolver } from "./wallet.resolver";
+import { walletMutationResolver, walletQueryResolver } from "./wallet.resolver";
 
 export const resolvers = {
   Query: {
@@ -9,5 +9,6 @@ export const resolvers = {
 
   Mutation: {
     ...authMutationResolver,
+    ...walletMutationResolver,
   },
 };

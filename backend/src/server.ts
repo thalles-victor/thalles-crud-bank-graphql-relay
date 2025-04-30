@@ -24,60 +24,60 @@ const typeDefs = gql(
 
 async function bootstrap() {
   try {
-    console.log(ENV.MONGO_URL_CONNECTION);
-
     await mongoose.connect(ENV.MONGO_URL_CONNECTION);
+    console.log("connected in database");
+  } catch (e) {
+    console.error("error when in database ", e);
+    throw e;
+  }
 
-    const server = new ApolloServer({
-      typeDefs,
-      resolvers,
-      plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],
-      formatError: (formattedError, error: any) => {
-        let errorObject;
-        try {
-          errorObject = JSON.parse(error.message);
-        } catch {
-          console.error(error);
-          return {
-            message: "Internal server error",
-            status: 500,
-          };
-        }
-
-        if (errorObject.message && errorObject.statusCode) {
-          return {
-            message: errorObject.message,
-            status: errorObject.statusCode,
-          };
-        }
-
+  const server = new ApolloServer({
+    typeDefs,
+    resolvers,
+    plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],
+    formatError: (formattedError, error: any) => {
+      let errorObject;
+      try {
+        errorObject = JSON.parse(error.message);
+      } catch {
+        console.error(error);
         return {
           message: "Internal server error",
           status: 500,
         };
-      },
-    });
+      }
 
-    await server.start();
+      if (errorObject.message && errorObject.statusCode) {
+        return {
+          message: errorObject.message,
+          status: errorObject.statusCode,
+        };
+      }
 
-    app.use(cors());
-    app.use(bodyParser());
-    app.use(
-      koaMiddleware(server, {
-        context: async ({ ctx }) => ctx,
-      })
-    );
+      return {
+        message: "Internal server error",
+        status: 500,
+      };
+    },
+  });
 
-    await new Promise((resolve) =>
-      httpServer.listen({ port: ENV.SELF_BACKEND_PORT }, resolve as any)
-    );
+  await server.start();
 
-    console.log(
-      `🚀 Server ready at ${ENV.SELF_BACKEND_PROTOCOL}://${ENV.SELF_BACKEND_DOMAIN}:${ENV.SELF_BACKEND_PORT}`
-    );
-  } catch (e) {
-    console.error(e);
-  }
+  app.use(cors());
+  app.use(bodyParser());
+  app.use(
+    koaMiddleware(server, {
+      context: async ({ ctx }) => ctx,
+    })
+  );
+
+  await new Promise((resolve) =>
+    httpServer.listen({ port: ENV.SELF_BACKEND_PORT }, resolve as any)
+  );
+
+  console.log(
+    `🚀 Server ready at ${ENV.SELF_BACKEND_PROTOCOL}://${ENV.SELF_BACKEND_DOMAIN}:${ENV.SELF_BACKEND_PORT}`
+  );
 }
 
 bootstrap();

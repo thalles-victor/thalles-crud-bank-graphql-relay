@@ -13,6 +13,13 @@ export async function authMiddleware(
   accessToken: string,
   allowRoles: (keyof typeof ROLE)[]
 ) {
+  if (!accessToken) {
+    throw new CustomErrorResponse({
+      message: "require access token",
+      statusCode: 400,
+    });
+  }
+
   const [Bearer, token] = accessToken.split(" ");
 
   if (!Bearer || Bearer !== "Bearer") {

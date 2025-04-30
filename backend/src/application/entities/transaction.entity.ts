@@ -1,8 +1,18 @@
-import mongoose from "mongoose";
+import mongoose, { Schema } from "mongoose";
 
-interface ITransaction {}
+interface ITransaction {
+  fromCpfCnpj: string;
+  toCpfCnpj: string;
+  value: number;
+  createdAt: Date;
+}
 
-export const transactionSchema = new mongoose.Schema<ITransaction>({});
+export const transactionSchema = new mongoose.Schema<ITransaction>({
+  fromCpfCnpj: { type: String, required: true },
+  toCpfCnpj: { type: String, required: true },
+  value: { type: Schema.Types.Number, required: true },
+  createdAt: { type: Date, required: true },
+});
 
 export const TransactionModel = mongoose.model<ITransaction>(
   "Transactions",
