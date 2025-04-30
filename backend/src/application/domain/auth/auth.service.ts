@@ -354,8 +354,6 @@ export class AuthService {
         });
       }
 
-      console.log(user);
-
       if (user.password) {
         throw new CustomErrorResponse({
           message: "user already have a password",
