@@ -10,6 +10,7 @@ import {
   faPlus,
   faWallet,
 } from "@fortawesome/free-solid-svg-icons";
+import { TransactionDialog } from "./local-components/transaction-dialog";
 
 export default function Dashboard() {
   return (
@@ -28,10 +29,7 @@ export default function Dashboard() {
               <FontAwesomeIcon icon={faDownload} width={16} className="mr-2" />
               Exportar
             </button>
-            <button className="flex items-center px-4 py-2 gradient-bg text-white rounded-lg font-medium hover:bg-purple-700 cursor-pointer">
-              <FontAwesomeIcon icon={faPlus} width={16} className="mr-2" /> Nova
-              transação
-            </button>
+            <TransactionDialog />
           </div>
         </div>
 
@@ -281,63 +279,6 @@ export default function Dashboard() {
             <button className="text-purple-600 font-medium hover:text-purple-800">
               Carregar mais transações
             </button>
-          </div>
-        </div>
-      </section>
-
-      {/* <!-- Credit Card --> */}
-      <section className="mb-10">
-        <div className="flex justify-between items-center mb-4">
-          <h3 className="text-xl font-bold text-gray-800">
-            Seu cartão Woovi-Test
-          </h3>
-          <button className="text-purple-600 font-medium hover:text-purple-800">
-            Gerenciar cartões
-          </button>
-        </div>
-
-        <div className="gradient-bg rounded-2xl p-6 text-white relative overflow-hidden h-48">
-          <div className="absolute top-0 right-0 w-32 h-32 rounded-full bg-white opacity-10 -mr-10 -mt-10"></div>
-          <div className="absolute bottom-0 right-0 w-48 h-48 rounded-full bg-white opacity-10 -mr-20 -mb-20"></div>
-
-          <div className="relative z-10">
-            <div className="flex justify-between items-start mb-8">
-              <div>
-                <p className="text-sm opacity-80">Cartão Woovi-Test</p>
-                <p className="text-xl font-bold">•••• •••• •••• 4679</p>
-              </div>
-              <div className="w-12 h-8 bg-white bg-opacity-20 rounded flex items-center justify-center">
-                <i className="fab fa-cc-visa text-xl"></i>
-              </div>
-            </div>
-
-            <div className="flex justify-between items-end">
-              <div>
-                <p className="text-sm opacity-80">Titular</p>
-                <p className="font-medium">CLIENTE WOOVI</p>
-              </div>
-              <div>
-                <p className="text-sm opacity-80">Válido até</p>
-                <p className="font-medium">06/27</p>
-              </div>
-              <div>
-                <p className="text-sm opacity-80">CVV</p>
-                <p className="font-medium">•••</p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="mt-4 grid grid-cols-2 gap-4">
-          <div className="bg-white rounded-xl shadow-sm p-4">
-            <p className="text-sm text-gray-500">Fatura atual</p>
-            <p className="text-xl font-bold text-gray-800">R$ 1.245,70</p>
-            <p className="text-xs text-gray-500 mt-1">Vence em 05/07</p>
-          </div>
-          <div className="bg-white rounded-xl shadow-sm p-4">
-            <p className="text-sm text-gray-500">Limite disponível</p>
-            <p className="text-xl font-bold text-gray-800">R$ 3.754,30</p>
-            <p className="text-xs text-gray-500 mt-1">de R$ 5.000,00</p>
           </div>
         </div>
       </section>
